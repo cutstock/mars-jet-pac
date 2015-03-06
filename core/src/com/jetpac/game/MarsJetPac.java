@@ -31,7 +31,6 @@ public class MarsJetPac extends Game {
 		super.dispose();
 	}
 	
-	//текущий уровень
 	public GameLevel getLevel()
 	{
 		if(currentLevel == null)
@@ -39,7 +38,6 @@ public class MarsJetPac extends Game {
 		return currentLevel;
 	}
 	
-	//следующий уровень
 	public GameLevel getNextLevel()
 	{
 		if(currentLevel != null)
@@ -51,8 +49,6 @@ public class MarsJetPac extends Game {
 			return null;
 		}
 		currentLevel = levels[currentLevelIndex];
-		if(currentLevel != null)
-			currentLevel.Initialize();
 		return currentLevel;
 	}
 }

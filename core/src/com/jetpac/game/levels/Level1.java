@@ -9,6 +9,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 import com.jetpac.game.GameLevel;
 
 public class Level1 extends GameLevel {
@@ -18,9 +23,10 @@ public class Level1 extends GameLevel {
 	private List<String> blocks;
 	
 	@Override
-	public void Initialize()
+	public void Initialize(World world)
 	{
-		atlas = new TextureAtlas("ground_brown.pack");
+		super.Initialize(world);
+		groundAtlas = new TextureAtlas("ground_brown.pack");
 		background = new Texture(Gdx.files.internal("background0.png"));
 		music = Gdx.audio.newMusic(Gdx.files.internal("game-game_0.ogg"));
 		music.setLooping(true);
@@ -32,6 +38,20 @@ public class Level1 extends GameLevel {
 			blocks.add(ground[3]);
 		}
 		blocks.add(ground[4]);
+		
+		PolygonShape floorShape = new PolygonShape();
+		floorShape.setAsBox(Gdx.graphics.getWidth(), blockSize); //a 2x2 rectangle
+		
+		//fixture definition
+	    FixtureDef floorFixtureDef = new FixtureDef();
+	    floorFixtureDef.shape = floorShape;
+	    floorFixtureDef.density = 1.0f;
+		
+		BodyDef floorBodyDef = new BodyDef();
+		floorBodyDef.type = BodyDef.BodyType.StaticBody;
+		floorBodyDef.position.set(0.0f, 0.0f);
+		
+		world.createBody(floorBodyDef).createFixture(floorFixtureDef);
 	}
 	
 	@Override
@@ -40,7 +60,7 @@ public class Level1 extends GameLevel {
 		super.draw(batch, delta);
 		float pos = 0;
 		for(String b : blocks){
-			Sprite block = new Sprite(atlas.findRegion(b));
+			Sprite block = new Sprite(groundAtlas.findRegion(b));
 			block.setSize(blockSize, blockSize);
 			block.setX(pos);
 			pos += block.getWidth();
