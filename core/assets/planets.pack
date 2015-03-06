@@ -1,0 +1,68 @@
+
+planets.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+planet7
+  rotate: false
+  xy: 1, 127
+  size: 138, 124
+  orig: 138, 124
+  offset: 0, 0
+  index: -1
+planet4
+  rotate: false
+  xy: 1, 1
+  size: 138, 124
+  orig: 138, 124
+  offset: 0, 0
+  index: -1
+planet2
+  rotate: false
+  xy: 141, 127
+  size: 138, 124
+  orig: 138, 124
+  offset: 0, 0
+  index: -1
+planet5
+  rotate: false
+  xy: 141, 1
+  size: 138, 124
+  orig: 138, 124
+  offset: 0, 0
+  index: -1
+planet6
+  rotate: false
+  xy: 281, 127
+  size: 138, 124
+  orig: 138, 124
+  offset: 0, 0
+  index: -1
+planet1
+  rotate: false
+  xy: 281, 1
+  size: 138, 124
+  orig: 138, 124
+  offset: 0, 0
+  index: -1
+planet0
+  rotate: false
+  xy: 421, 127
+  size: 138, 124
+  orig: 138, 124
+  offset: 0, 0
+  index: -1
+planet3
+  rotate: false
+  xy: 421, 1
+  size: 138, 124
+  orig: 138, 124
+  offset: 0, 0
+  index: -1
+planet8
+  rotate: false
+  xy: 561, 127
+  size: 138, 124
+  orig: 138, 124
+  offset: 0, 0
+  index: -1
