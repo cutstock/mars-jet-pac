@@ -1,5 +1,8 @@
 package com.jetpac.game;
 
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+
 import sun.net.www.content.audio.x_aiff;
 
 import com.badlogic.gdx.Gdx;
@@ -13,6 +16,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 
 public class Spaceman extends GameObject {
@@ -76,6 +80,8 @@ public class Spaceman extends GameObject {
 	    // We are a box, so this makes sense, no?
 	    // Basically set the physics polygon to a box with the same dimensions as our sprite
 	    shape.setAsBox(sprite.getWidth()/2, sprite.getHeight()/2);
+	    
+	    this.setSize(sprite.getWidth()/2, sprite.getHeight()/2);
 	
 	    // FixtureDef is a confusing expression for physical properties
 	    // Basically this is where you, in addition to defining the shape of the body
@@ -140,10 +146,10 @@ public class Spaceman extends GameObject {
 			tmpMoveState = lastMoveDirection == 1? sitRightState.getNextState(delta) : sitLeftState.getNextState(delta);
 			//lv.y = 50f;
 		}
-		if (Gdx.input.isKeyPressed(Keys.SPACE))
+		if (Gdx.input.isKeyPressed(Keys.SPACE) && !Gdx.input.isKeyPressed(Keys.UP))
 		{
 			//TODO: shoooooot!!!
-			
+			this.fire(new Event());
 		}
 		
 		if(tmpMoveState != null)
@@ -163,5 +169,10 @@ public class Spaceman extends GameObject {
 			}
 		}
 		body.setLinearVelocity(lv);
+	}
+	
+	public int GetDirection()
+	{
+		return lastMoveDirection;
 	}
 }

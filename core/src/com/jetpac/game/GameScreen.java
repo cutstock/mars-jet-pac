@@ -1,5 +1,9 @@
 package com.jetpac.game;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
@@ -8,6 +12,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
@@ -15,6 +20,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -25,15 +32,20 @@ public class GameScreen implements Screen {
 	GameLevel level;
 	Spaceman spaceman;
 	World world;
+
+	private float deltaTime;
 	
 	Box2DDebugRenderer debugRenderer;
     Matrix4 debugMatrix;
+    
+    private ArrayList<LazerRay> bullets;
+	private EventListener listener;
 
 	public GameScreen(final MarsJetPac marsJetPac) {
 		Gdx.input.setCatchBackKey(true);
 		
 		// Create a Box2DDebugRenderer, this allows us to see the physics simulation controlling the scene
-        debugRenderer = new Box2DDebugRenderer();
+        //debugRenderer = new Box2DDebugRenderer();
 		
 		// create the camera and the SpriteBatch
 		camera = new OrthographicCamera();
@@ -52,13 +64,33 @@ public class GameScreen implements Screen {
         world = new World(new Vector2(0, -100), true);
         
         level.Initialize(world);
-		
+        
+        bullets = new ArrayList<LazerRay>();
+        
+        listener = new EventListener() {
+			@Override
+			public boolean handle(Event event) {
+				// TODO Auto-generated method stub
+				if(deltaTime < 0.2f)
+					return false;
+				deltaTime = 0;
+				LazerRay bullet = new LazerRay(spaceman.GetDirection(), spaceman.x + (spaceman.GetDirection() * spaceman.getWidth()), spaceman.y);
+				bullet.initialize(world);
+				bullets.add(bullet);
+				return true;
+			}
+		};
+        
 		spaceman = new Spaceman();
 		spaceman.initialize(world);
+		spaceman.addListener(listener);
 	}
 
 	@Override
 	public void render(float delta) {
+		deltaTime += delta;
+		if(deltaTime > 10f)
+			deltaTime = 0;
 		// tell the camera to update its matrices.
 		camera.update();
 		// Advance the world, by the amount of time that has elapsed since the last frame
@@ -88,12 +120,31 @@ public class GameScreen implements Screen {
 		game.batch.begin();
 		level.draw(game.batch, delta);
 		spaceman.draw(game.batch, 0);
+
+		Iterator<LazerRay> bulls = bullets.iterator();
+		while(bulls.hasNext())
+		{
+			LazerRay b = bulls.next();
+			b.act(delta);
+        	if(b.getDeltaTime() > 5f)
+        		bulls.remove();
+        	else
+        	{
+        		Vector2 pos = b.getPosition();
+        		if(pos.x + b.getWidth() > 800)
+        			b.setPosition(0 - b.getWidth(), pos.y);
+        		else if (pos.x - b.getWidth() < 0)
+        			b.setPosition(800 + b.getWidth(), pos.y);
+        		b.draw(game.batch, 0);
+        	}
+		}
+		
 		game.font.draw(game.batch, "Score: " + 1, 0, 480);
 		game.batch.end();
 		
 		// Now render the physics world using our scaled down matrix
         // Note, this is strictly optional and is, as the name suggests, just for debugging purposes
-        debugRenderer.render(world, debugMatrix);
+        //debugRenderer.render(world, debugMatrix);
 
 		// process user input
 		if (Gdx.input.isTouched()) {
