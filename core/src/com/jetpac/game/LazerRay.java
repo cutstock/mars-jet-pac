@@ -2,6 +2,8 @@ package com.jetpac.game;
 
 import java.util.Random;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -18,8 +20,13 @@ public class LazerRay extends GameObject {
 	private String bullet;
 	private boolean straight;
 	private Sprite sprite;
+	private static Sound sound;
 	
 	public LazerRay(int direction, float x, float y) {
+		if(sound == null)
+		{
+			sound = Gdx.audio.newSound(Gdx.files.internal("Laser.wav"));
+		}
 		atlas = new TextureAtlas("bullets.pack");
 		this.x = x;
 		this.y = y;
@@ -82,5 +89,11 @@ public class LazerRay extends GameObject {
 		Vector2 lv = body.getLinearVelocity();
 	    lv.x = straight? 10000f : -10000f;
 	    body.setLinearVelocity(lv);
+	}
+	
+	public void blastSound()
+	{
+		if(sound != null)
+			sound.play();
 	}
 }

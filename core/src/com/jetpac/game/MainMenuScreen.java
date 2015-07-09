@@ -42,8 +42,7 @@ public class MainMenuScreen implements Screen {
 		game.batch.end();
 
 		if (Gdx.input.isTouched()) {
-			game.setScreen(new GameScreen(game));
-			dispose();
+			game.showGame();
 		}
 	}
 
@@ -53,19 +52,26 @@ public class MainMenuScreen implements Screen {
 
 	@Override
 	public void show() {
-		music.play();
+		if(!music.isPlaying())
+			music.play();
 	}
 
 	@Override
 	public void hide() {
+		if(music.isPlaying())
+			music.stop();
 	}
 
 	@Override
 	public void pause() {
+		if(music.isPlaying())
+			music.stop();
 	}
 
 	@Override
 	public void resume() {
+		if(!music.isPlaying())
+			music.play();
 	}
 
 	@Override

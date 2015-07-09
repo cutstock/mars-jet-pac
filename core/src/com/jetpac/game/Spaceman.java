@@ -123,30 +123,30 @@ public class Spaceman extends GameObject {
 		
 		String tmpMoveState = null;
 			
-		if (Gdx.input.isKeyPressed(Keys.RIGHT))
+		if (getKeyAction(Keys.RIGHT))
 		{
 			lastMoveDirection = 1;
 			tmpMoveState = runRightState.getNextState(delta);
 			lv.x = 50f;
 		}
-		if (Gdx.input.isKeyPressed(Keys.LEFT))
+		if (getKeyAction(Keys.LEFT))
 		{
 			lastMoveDirection = -1;
 			tmpMoveState = runLeftState.getNextState(delta);
 			lv.x = -50f;
 		}
-		if (Gdx.input.isKeyPressed(Keys.UP))
+		if (getKeyAction(Keys.UP))
 		{
 			tmpMoveState = lastMoveDirection == 1? jumpRightState.getNextState(delta) : jumpLeftState.getNextState(delta);
 			lv.y = 50f;
 			//body.applyForceToCenter(0f,1000f,true);
 		}
-		if (Gdx.input.isKeyPressed(Keys.DOWN))
+		if (getKeyAction(Keys.DOWN))
 		{
 			tmpMoveState = lastMoveDirection == 1? sitRightState.getNextState(delta) : sitLeftState.getNextState(delta);
 			//lv.y = 50f;
 		}
-		if (Gdx.input.isKeyPressed(Keys.SPACE) && !Gdx.input.isKeyPressed(Keys.UP))
+		if (getKeyAction(Keys.SPACE) && !getKeyAction(Keys.UP))
 		{
 			//TODO: shoooooot!!!
 			this.fire(new Event());
@@ -174,5 +174,27 @@ public class Spaceman extends GameObject {
 	public int GetDirection()
 	{
 		return lastMoveDirection;
+	}
+	
+	@Override
+	public void dispose()
+	{
+		this.clearListeners();
+		super.dispose();
+	}
+	
+	private boolean getKeyAction(int keyCode)
+	{
+		if(Gdx.input.isKeyPressed(keyCode))
+			return true;
+		if(keyCode == Keys.SPACE && Gdx.input.justTouched() && Gdx.input.getDeltaX() == 0)
+			return true;
+		if(keyCode == Keys.LEFT)
+			return Gdx.input.getDeltaX() < 0;
+		if(keyCode == Keys.RIGHT)
+			return Gdx.input.getDeltaX() > 0;
+		if(keyCode == Keys.UP)
+			return Gdx.input.getDeltaY() < 0;
+		return false;
 	}
 }

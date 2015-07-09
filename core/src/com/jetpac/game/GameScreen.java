@@ -76,6 +76,7 @@ public class GameScreen implements Screen {
 				deltaTime = 0;
 				LazerRay bullet = new LazerRay(spaceman.GetDirection(), spaceman.x + (spaceman.GetDirection() * spaceman.getWidth()), spaceman.y);
 				bullet.initialize(world);
+				bullet.blastSound();
 				bullets.add(bullet);
 				return true;
 			}
@@ -126,8 +127,11 @@ public class GameScreen implements Screen {
 		{
 			LazerRay b = bulls.next();
 			b.act(delta);
-        	if(b.getDeltaTime() > 5f)
+        	if(b.getDeltaTime() > 4f)
+        	{
         		bulls.remove();
+        		b.dispose();
+        	}
         	else
         	{
         		Vector2 pos = b.getPosition();
@@ -160,8 +164,7 @@ public class GameScreen implements Screen {
 
 		if (Gdx.input.isKeyPressed(Keys.BACK)
 				|| Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-			game.setScreen(new MainMenuScreen(game));
-			dispose();
+			game.showMenu();
 		}
 
 		// make sure the object stays within the screen bounds
@@ -187,19 +190,38 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void hide() {
+		if(level != null)
+			level.stopMusic();
 	}
 
 	@Override
 	public void pause() {
+		if(level != null)
+			level.stopMusic();
 	}
 
 	@Override
 	public void resume() {
+		if(level != null)
+			level.playMusic();
 	}
 
 	@Override
 	public void dispose() {
+		listener = null;
+		Iterator<LazerRay> bulls = bullets.iterator();
+		while(bulls.hasNext())
+		{
+			LazerRay b = bulls.next();
+       		bulls.remove();
+        	b.dispose();
+		}
+		spaceman.dispose();
 		if(level != null)
+		{
 			level.stopMusic();
+			level.dispose();
+		}
+		world.dispose();
 	}
 }

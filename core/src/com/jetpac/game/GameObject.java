@@ -34,6 +34,8 @@ public abstract class GameObject extends Actor {
 	
 	public void setPosition(float x, float y) {
 		body.setTransform(x, y, 0);
+		super.setX(x);
+		super.setY(y);
 	}
 	
 	public Vector2 getPosition() {

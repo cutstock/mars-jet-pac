@@ -12,6 +12,8 @@ public class MarsJetPac extends Game {
 	GameLevel[] levels;
 	int currentLevelIndex;
 	GameLevel currentLevel;
+	MainMenuScreen menuScreen;
+	GameScreen gameScreen;
 
 	public void create() {
 		Bullet.init();
@@ -20,14 +22,18 @@ public class MarsJetPac extends Game {
 		font = new BitmapFont();
 		currentLevelIndex = -1;
 		levels = new GameLevel[]{new Level1()};
-		this.setScreen(new MainMenuScreen(this));
-	}
-
-	public void render() {
-		super.render(); // important!
+		menuScreen = new MainMenuScreen(this);
+		gameScreen = new GameScreen(this);
+		this.setScreen(menuScreen);
 	}
 
 	public void dispose() {
+		for(GameLevel l : levels)
+		{
+			l.dispose();
+		}
+		gameScreen.dispose();
+		menuScreen.dispose();
 		batch.dispose();
 		font.dispose();
 		super.dispose();
@@ -52,5 +58,19 @@ public class MarsJetPac extends Game {
 		}
 		currentLevel = levels[currentLevelIndex];
 		return currentLevel;
+	}
+	
+	public void showMenu()
+	{
+		gameScreen.pause();
+		menuScreen.resume();
+		setScreen(menuScreen);
+	}
+	
+	public void showGame()
+	{
+		menuScreen.pause();
+		gameScreen.resume();
+		setScreen(gameScreen);
 	}
 }

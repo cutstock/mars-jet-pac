@@ -22,11 +22,13 @@ public abstract class GameLevel {
 	}
 	
 	public void playMusic()	{
-		music.play();
+		if(!music.isPlaying())
+			music.play();
 	}
 	
 	public void stopMusic()	{
-		music.stop();
+		if(music.isPlaying())
+			music.stop();
 	}
 	
 	public void Initialize(World world)	{
