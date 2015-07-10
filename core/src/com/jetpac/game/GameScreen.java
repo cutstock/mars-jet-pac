@@ -3,6 +3,7 @@ package com.jetpac.game;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -24,6 +25,10 @@ import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Manifold;
 
 public class GameScreen implements Screen {
 
@@ -32,6 +37,9 @@ public class GameScreen implements Screen {
 	GameLevel level;
 	Spaceman spaceman;
 	World world;
+	ContactListener contactListener;
+	
+	private int scores = 0;
 
 	private float deltaTime;
 	
@@ -45,7 +53,7 @@ public class GameScreen implements Screen {
 		Gdx.input.setCatchBackKey(true);
 		
 		// Create a Box2DDebugRenderer, this allows us to see the physics simulation controlling the scene
-        //debugRenderer = new Box2DDebugRenderer();
+        debugRenderer = new Box2DDebugRenderer();
 		
 		// create the camera and the SpriteBatch
 		camera = new OrthographicCamera();
@@ -61,7 +69,7 @@ public class GameScreen implements Screen {
 		}
 		
 		// Create a physics world, the heart of the simulation.  The Vector passed in is gravity
-        world = new World(new Vector2(0, -100), true);
+        world = new World(new Vector2(0, -200), true);
         
         level.Initialize(world);
         
@@ -85,6 +93,51 @@ public class GameScreen implements Screen {
 		spaceman = new Spaceman();
 		spaceman.initialize(world);
 		spaceman.addListener(listener);
+		
+		contactListener = new ContactListener() {
+			
+			@Override
+			public void preSolve(Contact contact, Manifold oldManifold) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void postSolve(Contact contact, ContactImpulse impulse) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void endContact(Contact contact) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void beginContact(Contact contact) {
+				// TODO Auto-generated method stub
+				Object obj1 = contact.getFixtureA().getBody().getUserData();
+				Object obj2 = contact.getFixtureB().getBody().getUserData();
+				if(obj1 instanceof LazerRay && obj2 instanceof LazerRay)
+				{
+					((GameObject)obj1).setDead();
+					((GameObject)obj2).setDead();
+				}
+				if((obj1 instanceof LazerRay && obj2 instanceof Enemy) || (obj1 instanceof Enemy && obj2 instanceof LazerRay))
+				{
+					((GameObject)obj1).setDead();
+					((GameObject)obj2).setDead();
+					scores++;
+				}
+				if((obj1 instanceof Spaceman && obj2 instanceof Enemy) || (obj1 instanceof Enemy && obj2 instanceof Spaceman))
+				{
+					((GameObject)obj1).setDead();
+					scores--;
+				}
+			}
+		};
+		world.setContactListener(contactListener);
 	}
 
 	@Override
@@ -99,6 +152,8 @@ public class GameScreen implements Screen {
         // update rate to the frame rate, and vice versa
         //world.step(Gdx.graphics.getDeltaTime(), 6, 2);
 		world.step(delta, 6, 2);
+		
+		level.act(delta);
         
         spaceman.act(delta);
         
@@ -127,7 +182,7 @@ public class GameScreen implements Screen {
 		{
 			LazerRay b = bulls.next();
 			b.act(delta);
-        	if(b.getDeltaTime() > 4f)
+        	if(!b.isAlive() || b.getDeltaTime() > 5f)
         	{
         		bulls.remove();
         		b.dispose();
@@ -143,12 +198,33 @@ public class GameScreen implements Screen {
         	}
 		}
 		
-		game.font.draw(game.batch, "Score: " + 1, 0, 480);
+		Random rn = new Random();
+		Iterator<Enemy> enemies = level.getEnemies().iterator();
+		while(enemies.hasNext())
+		{
+			Enemy e = enemies.next();
+			if(!e.isAlive())
+        	{
+				enemies.remove();
+        		e.dispose();
+        	}
+			else
+			{
+				e.act(delta);
+				Vector2 pos = e.getPosition();
+	        	if(pos.x + e.getWidth() > 800 + 800/3)
+	        		e.setPosition(0 - e.getWidth() * 2, pos.y);
+	        	else if (pos.x - e.getWidth() < -800 - 800/3)
+	        		e.setPosition(800 + e.getWidth() * 2, pos.y);
+			}
+		}
+		
+		game.font.draw(game.batch, "Score: " + scores, 0, 480);
 		game.batch.end();
 		
 		// Now render the physics world using our scaled down matrix
         // Note, this is strictly optional and is, as the name suggests, just for debugging purposes
-        //debugRenderer.render(world, debugMatrix);
+        debugRenderer.render(world, debugMatrix);
 
 		// process user input
 		if (Gdx.input.isTouched()) {
@@ -156,11 +232,6 @@ public class GameScreen implements Screen {
 			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touchPos);
 		}
-
-		// if (Gdx.input.isKeyPressed(Keys.LEFT))
-		// bucket.x -= 200 * Gdx.graphics.getDeltaTime();
-		// if (Gdx.input.isKeyPressed(Keys.RIGHT))
-		// bucket.x += 200 * Gdx.graphics.getDeltaTime();
 
 		if (Gdx.input.isKeyPressed(Keys.BACK)
 				|| Gdx.input.isKeyPressed(Keys.ESCAPE)) {

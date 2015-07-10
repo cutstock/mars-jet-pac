@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -17,22 +18,20 @@ import com.badlogic.gdx.physics.box2d.World;
 public class LazerRay extends GameObject {
 
 	private final String[] bullets = {"bullet0", "bullet1", "bullet2", "bullet4", "bullet5", "bullet6", "bullet7"};
-	private String bullet;
+	private String bulletType;
 	private boolean straight;
-	private Sprite sprite;
+	protected static TextureAtlas atlas;
 	private static Sound sound;
 	
 	public LazerRay(int direction, float x, float y) {
 		if(sound == null)
-		{
 			sound = Gdx.audio.newSound(Gdx.files.internal("Laser.wav"));
-		}
-		atlas = new TextureAtlas("bullets.pack");
+		if(atlas == null)
+			atlas = new TextureAtlas("bullets.pack");
 		this.x = x;
 		this.y = y;
-		Random rn = new Random();
-		bullet = bullets[rn.nextInt(bullets.length)];
-		//bullet = bullets[5];
+		//Random rn = new Random();
+		bulletType = "bullet0";//bullets[rn.nextInt(bullets.length)];
 		straight = direction == 1;
 	}
 	
@@ -43,7 +42,7 @@ public class LazerRay extends GameObject {
 	    BodyDef bodyDef = new BodyDef();
 	    bodyDef.type = BodyDef.BodyType.DynamicBody;
 	    
-	    AtlasRegion r = atlas.findRegion(bullet);
+	    AtlasRegion r = atlas.findRegion(bulletType);
 	    if(!straight)
 			r.flip(true, false);
 	    sprite = new Sprite(r);
@@ -67,16 +66,23 @@ public class LazerRay extends GameObject {
 	    
 	    // Create a body in the world using our definition
 	    body = world.createBody(bodyDef);
+	    body.setUserData(this);
+	    body.setFixedRotation(true);
 	    
 	    fixture = body.createFixture(fixtureDef);
-
+	    
 	    // Shape is the only disposable of the lot, so get rid of it
 	    shape.dispose();
+	    
+	    Vector2 lv = body.getLinearVelocity();
+	    lv.x = straight? 5000f : -5000f;
+	    body.setLinearVelocity(lv);
 	}
 	
 	@Override
 	public void draw (Batch batch, float parentAlpha){
 		sprite.setPosition(body.getPosition().x - sprite.getWidth()/2, body.getPosition().y - sprite.getHeight()/2);
+		//sprite.setRotation(body.getAngle() * MathUtils.radiansToDegrees);
         //sprite.setRotation((float)Math.toDegrees(body.getAngle()));
 		//setBounds(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
 		sprite.draw(batch);
@@ -87,7 +93,7 @@ public class LazerRay extends GameObject {
 		// TODO Auto-generated method stub
 		super.act(delta);
 		Vector2 lv = body.getLinearVelocity();
-	    lv.x = straight? 10000f : -10000f;
+		lv.x = lv.x * 2f;
 	    body.setLinearVelocity(lv);
 	}
 	

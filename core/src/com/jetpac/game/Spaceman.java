@@ -1,10 +1,5 @@
 package com.jetpac.game;
 
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-
-import sun.net.www.content.audio.x_aiff;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -15,7 +10,6 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 
@@ -42,6 +36,8 @@ public class Spaceman extends GameObject {
 	private MoveState sitLeftState;
 	private MoveState flyRightState;
 	private MoveState flyLeftState;
+	
+	protected TextureAtlas atlas;
 	
 	private int lastMoveDirection = 1; // default move right
 
@@ -79,9 +75,9 @@ public class Spaceman extends GameObject {
 	    PolygonShape shape = new PolygonShape();
 	    // We are a box, so this makes sense, no?
 	    // Basically set the physics polygon to a box with the same dimensions as our sprite
-	    shape.setAsBox(sprite.getWidth()/2, sprite.getHeight()/2);
+	    shape.setAsBox(sprite.getWidth()/2.5f, sprite.getHeight()/2f);
 	    
-	    this.setSize(sprite.getWidth()/2, sprite.getHeight()/2);
+	    this.setSize(sprite.getWidth()/2f, sprite.getHeight()/2f);
 	
 	    // FixtureDef is a confusing expression for physical properties
 	    // Basically this is where you, in addition to defining the shape of the body
@@ -93,6 +89,8 @@ public class Spaceman extends GameObject {
 	    
 	    // Create a body in the world using our definition
 	    body = world.createBody(bodyDef);
+	    body.setUserData(this);
+	    body.setFixedRotation(true);
 	    
 	    fixture = body.createFixture(fixtureDef);
 	
@@ -102,14 +100,10 @@ public class Spaceman extends GameObject {
 
 	@Override
 	public void draw (Batch batch, float parentAlpha){
-		Sprite sprite = new Sprite(atlas.findRegion(moveState));
+		sprite = new Sprite(atlas.findRegion(moveState));
 		sprite.setPosition(body.getPosition().x - sprite.getWidth()/2, body.getPosition().y - sprite.getHeight()/2);
-        //sprite.setRotation((float)Math.toDegrees(body.getAngle()));
-		//setBounds(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
 		sprite.draw(batch);
 	}
-	
-	 
 	
 	@Override
 	public void act(float delta) {
@@ -179,6 +173,7 @@ public class Spaceman extends GameObject {
 	@Override
 	public void dispose()
 	{
+		atlas.dispose();
 		this.clearListeners();
 		super.dispose();
 	}

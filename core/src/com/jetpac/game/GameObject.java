@@ -1,5 +1,6 @@
 package com.jetpac.game;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -8,15 +9,16 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public abstract class GameObject extends Actor {
-	protected TextureAtlas atlas;
-	Body body;
-	Fixture fixture;
+	protected Body body;
+	protected Fixture fixture;
+	protected Sprite sprite;
 	protected float x;
 	protected float y;
 	private float deltaTime;
+	private boolean isDead;
 	
 	public void dispose(){
-		atlas.dispose();
+		body.destroyFixture(fixture);
 	}
 	
 	abstract void initialize(World world);
@@ -40,5 +42,15 @@ public abstract class GameObject extends Actor {
 	
 	public Vector2 getPosition() {
 		return body.getPosition();
+	}
+	
+	public void setDead()
+	{
+		isDead = true;
+	}
+	
+	public boolean isAlive()
+	{
+		return !isDead;
 	}
 }

@@ -3,7 +3,6 @@ package com.jetpac.game;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.physics.bullet.Bullet;
 import com.jetpac.game.levels.Level1;
 
 public class MarsJetPac extends Game {
@@ -16,7 +15,6 @@ public class MarsJetPac extends Game {
 	GameScreen gameScreen;
 
 	public void create() {
-		Bullet.init();
 		batch = new SpriteBatch();
 		// Use LibGDX's default Arial font.
 		font = new BitmapFont();
